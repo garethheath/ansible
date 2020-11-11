@@ -1,73 +1,73 @@
 ---
 - name: configure MSSQL Login for Admins
   win_dsc:
-    resource_name: SqlServerLogin
+    resource_name: SqlLogin
     Ensure: Present
-    Name: "{{ item }}"
-    LoginType: WindowsGroup
+    Name: "{{ inventory_hostname_short }}\\{{ item }}"
+    LoginType: WindowsUser
     ServerName: .
     InstanceName: "{{ outer_item.instance_name }}"
-  loop: 
+  with_items: 
     - "{{ outer_item.sysadmins }}"
   when: outer_item.sysadmins is defined
 
 - name: configure MSSQL Logins SPS Users
   win_dsc:
-    resource_name: SqlServerLogin
+    resource_name: SqlLogin
     Ensure: Present
-    Name: "{{ item }}"
-    LoginType: WindowsGroup
+    Name: "{{ inventory_hostname_short }}\\{{ item }}"
+    LoginType: WindowsUser
     ServerName: .
     InstanceName: "{{ outer_item.instance_name }}"
-  loop:
+  with_items:
     - "{{ outer_item.sqlusers }}"
   when: outer_item.sqlusers is defined
 
 - name: configure MSSQL Login for Setup User
   win_dsc:
-    resource_name: SqlServerLogin
+    resource_name: SqlLogin
     Ensure: Present
-    Name: "{{ item }}"
+    Name: "{{ inventory_hostname_short }}\\{{ item }}"
     LoginType: WindowsGroup
     ServerName: .
     InstanceName: "{{ outer_item.instance_name }}"
-  loop: 
+  with_items: 
     - "{{ outer_item.setupadmins }}"
   when: outer_item.setupadmins is defined
 
 - name: configure Admin MSSQL Server Role
   win_dsc:
-    resource_name: SqlServerRole
+    resource_name: SqlRole
     Ensure: Present
     ServerRoleName: sysadmin
-    MembersToInclude: "{{ item }}"
+    MembersToInclude: "{{ inventory_hostname_short }}\\{{ item }}"
     ServerName: .
     InstanceName: "{{ outer_item.instance_name }}"
-  loop: 
+  with_items: 
     - "{{ outer_item.sysadmins }}"
   when: outer_item.sysadmins is defined
 
 - name: configure Setup User MSSQL Server Role
   win_dsc:
-    resource_name: SqlServerRole
+    resource_name: SqlRole
     Ensure: Present
     ServerRoleName: securityadmin
-    MembersToInclude: "{{ item }}"
+    MembersToInclude: "{{ inventory_hostname_short }}\\{{ item }}"
     ServerName: .
     InstanceName: "{{ outer_item.instance_name }}"
-  loop: 
+  with_items: 
     - "{{ outer_item.setupadmins }}"
   when: outer_item.setupadmins is defined
 
 - name: configure Setup User MSSQL Server Role
   win_dsc:
-    resource_name: SqlServerRole
+    resource_name: SqlRole
     Ensure: Present
     ServerRoleName: dbcreator
-    MembersToInclude: "{{ item }}"
+    MembersToInclude: "{{ inventory_hostname_short }}\\{{ item }}"
     ServerName: .
     InstanceName: "{{ outer_item.instance_name }}"
-  loop: 
+  with_items: 
     - "{{ outer_item.setupadmins }}"
   when: outer_item.setupadmins is defined
 
@@ -75,9 +75,8 @@
   win_dsc:
     resource_name: SqlDatabaseRole
     Ensure: Present
-    Name: "{{ item.1 }}"
-    Role: db_owner
-    Database: "{{ item.0 }}"
+    Name: db_owner
+    DatabaseName: "{{ item.0 }}"
     ServerName: .
     InstanceName: "{{ outer_item.instance_name }}"
   with_nested: 
@@ -89,10 +88,10 @@
   win_dsc:
     resource_name: SqlDatabasePermission
     Ensure: Present
-    Name: "{{ item.1 }}"
+    Name: "{{ inventory_hostname_short }}\\{{ item.1 }}"
     PermissionState: Grant
     Permissions: Connect, Update, Delete, Select
-    Database: "{{ item.0 }}"
+    DatabaseName: "{{ item.0 }}"
     ServerName: .
     InstanceName: "{{ outer_item.instance_name }}"
   with_nested: 
@@ -104,10 +103,10 @@
   win_dsc:
     resource_name: SqlDatabasePermission
     Ensure: Present
-    Name: "{{ item.1 }}"
+    Name: "{{ inventory_hostname_short }}\\{{ item.1 }}"
     PermissionState: Grant
     Permissions: Connect, Update, Select
-    Database: "{{ item.0 }}"
+    DatabaseName: "{{ item.0 }}"
     ServerName: .
     InstanceName: "{{ outer_item.instance_name }}"
   with_nested: 

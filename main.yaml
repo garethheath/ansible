@@ -1,0 +1,8 @@
+---
+- name: Deploy MSSQL
+  hosts: mssql
+
+  tasks:
+  - name: Install MSSQL
+    import_role:
+      name: mssql

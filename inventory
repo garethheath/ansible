@@ -1,2 +1,5 @@
 [mssql]
-win2019
+sql01
+
+[mssql_ssis]
+ssis01

@@ -6,6 +6,6 @@
     Name: "{{ item }}"
     ServerName: .
     InstanceName: "{{ outer_item.instance_name }}"
-  loop: 
+  with_items: 
     - "{{ outer_item.databases }}"
   when: outer_item.databases is defined

@@ -18,7 +18,10 @@
     SourcePath: "{{ disk_image_out.results[0].mount_path }}"
     UpdateEnabled: False
     ForceReboot: False
-  loop: 
+    SecurityMode: SQL
+    SAPwd_username: sa
+    SAPwd_password: Passw0rd.123
+  with_items: 
     - "{{ rl_mssql_instances }}"
   when: not item.productkey is defined
 
@@ -42,7 +45,10 @@
     UpdateEnabled: False
     ForceReboot: False
     ProductKey: "{{ item.productkey }}"
-  loop: 
+    SecurityMode: SQL
+    SAPwd_username: sa
+    SAPwd_password: Passw0rd.123
+  with_items: 
     - "{{ rl_mssql_instances }}"
   when: item.productkey is defined
 
@@ -53,5 +59,15 @@
     InstanceName: "{{ item.instance_name }}"
     Ensure: Present
     SourcePath: "{{ disk_image_out.results[0].mount_path }}"
-  loop: 
+  with_items: 
+    - "{{ rl_mssql_instances }}"
+
+- name: enable TcpIp protocol
+  win_dsc:
+    resource_name: SqlProtocol
+    InstanceName: "{{ item.instance_name }}"
+    ServerName: .
+    protocolName: TcpIp
+    Enabled: true
+  with_items:
     - "{{ rl_mssql_instances }}"
